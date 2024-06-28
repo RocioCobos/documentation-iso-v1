@@ -1,0 +1,124 @@
+---
+sidebar_position: 9
+---
+
+# Preference
+
+The Preference plugin works by prioritizing options that align with your preferences and presenting them in a preferred order. It follows a sequential process, where rules are checked one by one until a matching rule is found. When a match is found, the process stops, and your preference is applied. If no matching rule is found, the option will be validated.
+
+To determine matches, the plugin uses the `clientTokens` field, which identifies the provider and helps filter which business rules can be applied to the request you send.
+
+## Preference Plugin Workflow
+
+1. Starts getting all the args set by the client in the query, like options, parameters (primaryKey among others), client tokens, etc.
+
+2. Gets the rules stored in database which will establish which options will be added or discarted based on several factors as % of tolerance of the price, options status, hotelcodes, supplier, etc.
+
+3. Builds a group function which will help to clasify the options slice in n different groups based on the primary key established in the query by the client and the rules stored in the data base (SFTP preference file).Sorts the options in price order (from cheap to expensive).
+
+4. Go over each option and group them by primary key index. However not all the options will be filled in these aggrupations. This is where the rules come into play.
+To determine if an option will be discarted or not we have to check the group function which does the following: 
+   * If it is the first option in the pk index, this option will be automatically added.
+   * If the rule says that the competitors has to be discarted, all the options of that pk index will be discarted except for the first (the cheapest).
+   * If it isnt the first option and there aren’t any rule that matches the option, this option will be discarted.
+   * If it isnt the first option and the price is higher than the tolerance % established in the rules for that pk index, the option will also be discarted.
+
+5. With the resulting options grouped by pk indexes, finally collects all of them and return them to the service process which has used the plugin.
+
+Some examples:
+
+**Percentage = 1, Supplier A: 126 €, Supplier B: 125 €**  
+```
+126 - 126 * 0.01 = 124,74 < 125 €, then the selected one is supplier A
+```
+
+**Percentage = 1, Supplier A: 128 €, Supplier B: 125 €**  
+```
+128 - 128 * 0.01 = 126.72> 125 €, then the selected one is supplier B
+```
+
+
+To get started with the Preference plugin, follow these simple steps:
+
+## 1. Create and Upload your Preference File
+
+To get started, create your preference file in the correct format and then upload it to your SFTP account. We've provided a template file below ⬇️ to help you with this process. Just click on the file name, add your own rules, save it in CSV format, and then upload it to the corresponding folder in your SFTP.
+
+```mdx-code-block
+<BrowserWindow>
+
+📁HotelX  
+&nbsp;&nbsp;&nbsp;&nbsp; 📁HotelX_0000  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 📁BusinessRules  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **📄[BuyerContext_sequential_preference.csv](https://storage.travelgate.com/docs/BuyerContext_sequential_preference.csv)**
+
+</BrowserWindow>
+```
+
+### File Format Specification
+
+* **File Name:** BuyerContext_sequential_preference.csv
+* **Directory:** HotelX/HotelX\_0000/BusinessRules
+* **Delimiter:** Comma (`,`)
+* **Header Row:**
+   * **RuleId (mandatory):** Rule identifier
+   * **ClientTokens (mandatory):** Identifier provided by the client that is used to filter which business rules can be applied for the sent request
+      * Separator for multiples codes in the same row: Semicolon `;`
+   * **SupplierCodes (mandatory):** Supplier codes you want the preference to be applied to.
+      * Separator for multiples codes in the same row: Semicolon `;`
+   * **NotSupplierCodes (mandatory):** Supplier codes you don't want the preference to be applied to.
+      * Separator for multiples codes in the same row: Semicolon `;`
+   * **BookingDateFrom:** Booking date (yyyy-mm-dd)
+   * **BookingDateTo:** Booking date to (yyyy-mm-dd)
+   * **StartDateFrom:** Start date from (yyyy-mm-dd)
+   * **StartDateTo:** Start date to (yyyy-mm-dd)
+   * **HotelCodes:** Hotel codes you want the preference to be applied to.
+      * Separator for multiples codes in the same row: Semicolon `;`
+   * **NothotelCodes:** Hotel codes you don't want the preference to be applied to.
+      * Separator for multiples codes in the same row: Semicolon `;`
+   * **ChainsCodes:** Chain codes you want the preference to be applied to.
+      * Separator for multiples codes in the same row: Semicolon `;`
+   * **NotChainCodes:** Chain codes you don't want the preference to be applied to.
+      * Separator for multiples codes in the same row: Semicolon `;`
+   * **DestinationCodes:** Destination codes you want the preference to be applied to.
+      * Separator for multiples codes in the same row: Semicolon `;`
+   * **NotDestinationCodes:** Destination codes you don't want the preference to be applied to.
+      * Separator for multiples codes in the same row: Semicolon `;`
+   * **Status:** Option status (OK, RQ) you want the preference to be applied to.
+      * Separator for multiples codes in the same row: Semicolon `;`
+   * **NotStatus:** Option status (OK, RQ) you don't want the preference to be applied to.
+      * Separator for multiples codes in the same row: Semicolon `;`
+   * **Percentage (mandatory):** Commission value, decimal separator must be point `.`
+   * **FilterCompetitors (mandatory):** Filter competitors
+
+
+<details>
+    <summary>📹Learn how to change the format of the csv file in order to edit and save it</summary>
+    <div>
+        <div><iframe width="560" height="315" src="https://www.youtube.com/embed/XkOk3SkZ0Sg?si=TYhN1QfMwYE1fusw&amp;controls=0" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe></div>
+    </div>
+</details>
+
+
+
+## 2. Execute Preference Plugin in your Query
+
+Once you've uploaded your preference file, to use the plugin add the following field to the `settings` node of your request. Note that preference plugin can just be executed in search query. In order to successfully execute the preference plugin, you will need to create the request with the following variables.
+
+* **`step`**: "RESPONSE"
+* **`type`**: "PRE_STEP"
+* **`name`**: "preference"
+
+```js
+"settings": {
+	"plugins": [
+		{
+			"step": "RESPONSE",
+			"pluginsType": {
+				"type": "PRE_STEP",
+				"name": "preference"
+			}
+		}
+	]
+}
+```

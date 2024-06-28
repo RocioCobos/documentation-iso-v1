@@ -1,0 +1,127 @@
+---
+sidebar_position: 3
+---
+
+# Blacklist
+
+The Blacklist plugin lets you easily exclude specific hotel codes when executing a search. This means that hotels on your blacklist won't be requested from the supplier, helping you streamline your results and improve query efficiency. You can even exclude entire suppliers using customizable rules.
+
+To get started with the Blacklist plugin, follow these simple steps:
+
+## 1. Create and Upload your Blacklist File
+
+To get started, create your blacklist file in the correct format and then upload it to your FTP account. We've provided a template file below ⬇️ to help you with this process. Just click on the file name, add your own rules, save it in CSV format, and then upload it to the corresponding folder in your FTP.
+
+```mdx-code-block
+<BrowserWindow>
+
+📁HotelX  
+&nbsp;&nbsp;&nbsp;&nbsp; 📁HotelX_0000  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 📁BusinessRules  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **📄[blacklist_access_hotels.csv](https://storage.travelgate.com/docs/blacklist_access_hotels.csv)**
+
+</BrowserWindow>
+```
+
+:::note
+
+If you need assistance with requesting your credentials to access the SFTP server, determining the endpoint and directory format, or learning how to upload, update, and delete SFTP files, please refer to the [overview](../plugins/overview) section of Plugins.
+
+:::
+
+### File Format Specification
+
+* **File Name:** blacklist_access_hotels.csv
+* **Directory:** HotelX/HotelX_0000/BusinessRules
+* **Delimiter:** Comma (`,`)
+* **Header Row:**
+	* **IdRule:** Unique identifier of the rule. You can assign one with the identifier that suits you better.
+	* **ClientToken:** List of the client tokens you want the rule to be applied to, separated by `;`. This is a dynamic parameter that you can include in your query request if you wish to enforce particular rules from the blacklist.
+	* **NoClientToken:** List of the client tokens you don't want the rule to be applied to, separated by `;`. 
+	* **Client:** List of the specific clients you want the rule to be applied to, separated by `;`. 
+	* **NoClient:** List of the specific clients you don't want the rule to be applied to, separated by `;`. 
+	* **Supplier:** List of the supplier codes you want the rule to be applied to, separated by `;`. 
+	* **NoSupplier:** List of the supplier codes you don't want the rule to be applied to, separated by `;` 
+	* **Access:** List of the access codes you want the rule to be applied to, separated by `;`. 
+	* **NoAccess:** List of the access codes you don't want the rule to be applied to, separated by `;`. 
+	* **Context:** List of the Buyer context codes you want the rule to be applied to, separated by `;`. 
+	* **NoContext:** List of the Buyer context codes you don't want the rule to be applied to, separated by `;`. 
+	* **ContextSup:** List of the Supplier context codes you want the rule to be applied to, separated by `;`. 
+	* **NoContextSup:** List of the Supplier context codes you don't want the rule to be applied to, separated by `;`. 
+	* **Values:** Values can be 'blacklist' or 'whitelist' with hotel codes grouped by context. The format is as follows:
+		* All values should have two blocks separated by the characters `||`.
+		* The first block identifies the `context` and the second block identifies the list of `hotel codes` separated by `;`. 
+		* Values in the whitelist or blacklist are separated by the characters `|@|`.
+		* Use 'all' as a keyword when you want to choose all contexts or all hotels.
+		* **Format examples:**
+			* Blacklist: `bl:(CTX1||A;B;C|@|CTX2||C;B;D;)`
+			* Whitelist: `wl:(CTX1||A;B;C|@|CTX2||all)`
+			* Blacklist and Whitelist (if blacklist and whitelist are used at same time, then the CONTEXT must be exclusive): `bl:(CTX1||A;B;C), wl:(CTX2||A;B;C)`
+
+
+:::caution
+
+Keep in mind that this file contains a collection of rules, and the system will choose **the first rule that matches the criteria sent in the query**. You must specify the most restrictive rules at the top of the file. If there's no value for any rule criteria row, it means that any value in the request matches this row. Indicate the contexts used in values on the rule criteria to improve rule matching.
+
+:::
+
+
+<details>
+    <summary>📹 Learn how to change the format of the csv file in order to edit and save it</summary>
+    <div>
+        <div><iframe width="560" height="315" src="https://www.youtube.com/embed/XkOk3SkZ0Sg?si=TYhN1QfMwYE1fusw&amp;controls=0" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe></div>
+    </div>
+</details>
+
+
+### Check Some of the Most Common Use Cases
+
+Here are some common use cases for the Blacklist plugin, along with the CSV template file to use:
+
+| Use Case                                                      | CSV Template file             |
+|---------------------------------------------------------------|-------------------------------|
+| Block all hotels of two accesses                              | 📄[blacklist  _access  _hotels.csv](https://storage.travelgate.com/docs/blacklist_access_hotels-1.csv) |
+| Block all hotels of two suppliers                             | 📄[blacklist  _access  _hotels.csv](https://storage.travelgate.com/docs/blacklist_access_hotels-2.csv) |
+| Block all hotels except “A” and “B” of two suppliers          | 📄[blacklist  _access  _hotels.csv](https://storage.travelgate.com/docs/blacklist_access_hotels-3.csv) |
+
+
+## 2. Execute Blacklist Plugin in your Query
+
+Once you've uploaded your blacklist file, to use the plugin add the following field to the `settings` node of your request. Note that blacklist plugin can just be executed in search query. In order to successfully execute the blacklist plugin, you will need to create the request with the following variables.
+
+* **`step`**: "REQUEST_ACCESS"
+* **`type`**: "PRE_STEP"
+* **`name`**: "blacklist"
+
+```js
+"settings": {
+	"plugins": [
+		{
+			"step": "REQUEST_ACCESS",
+			"pluginsType": {
+				"type": "PRE_STEP",
+				"name": "blacklist"
+			}
+		}
+	]
+}
+```
+
+To apply a specific rule in a query, add the `clientTokens` field to the `settings` node of your request:
+
+```js
+	"settings": {
+		"clientTokens": [
+			"testToken"
+		],
+		"plugins": [
+            {
+				"step": "REQUEST_ACCESS",
+				"pluginsType": {
+					"type": "PRE_STEP",
+					"name": "blacklist"
+				}
+			}
+        ]
+	}
+```

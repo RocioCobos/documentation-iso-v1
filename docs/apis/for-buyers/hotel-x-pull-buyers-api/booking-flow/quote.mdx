@@ -1,0 +1,155 @@
+---
+sidebar_position: 3
+---
+
+import {quoteQuickStartQuery, quoteQuickStartVariables} from "../../../../../src/graphql/hotel-x/quote.quickstart.query";
+
+# Quote
+
+Quote operation evaluates the rate before booking, providing the same information as the Search response for a hotel rate, including up-to-date pricing and cancellation policies. The returned fields include:
+
+* `status`
+* `price`
+* `cancelPolicy`
+* `rooms`
+* `surcharges`
+
+
+## Quote Inputs
+
+When creating your quote query, you have two different inputs to fill based on your specific needs:
+
+1. Criteria
+2. Settings
+
+```graphql
+query {
+    hotelX {
+    quote
+      criteria: {}
+      settings: {}
+	}
+}
+```
+
+<CautionSettingsHotelX />
+
+### 1. Criteria 
+
+This query offers versatility in quote options, with certain fields marked as mandatory (`optionRefId`) and others as optional (`language`). This flexibility empowers you to create a personalized Quote Query, tailoring the requested fields to your specific needs. 
+
+To specify your quote criteria you need to use the input `HotelCriteriaQuoteInput` in your query variables:
+
+
+```js
+{
+		"optionRefId": "13[%!03!~|3[%@241028!~|241029!~|1!~|1!~|0!~|ES!~|ES!~|es!~|EUR!~|0!~|2!~|1!~|1!~|1!~|0!~|15091141!~|BAR[%@BAR!~|146[%@0[%@false[%@EUR[%@[%@0[%@!~|1|30#30|1|2024-10-28|1|4132467|4132468|1|11|0!~|2269[%!2269!~|30[%@30!~|!~|Double Standard!~|1!~|!~|mercado[%@ES[%!ExpireDate[%@29/10/2024[%!tarifaNRF[%@true[%!RateRule[%@tarifaNoRefundablePorHabitacion!~|OK!~|Sith!~|0!~|"
+}
+```
+
+**Mandatory criteria:**
+* `optionRefId` (Identifier of the option chosen in Search)
+
+**Optional criteria:**
+* `language`
+
+### 2. Settings 
+
+Settings are the common configurations used to construct requests to the supplier/s. By default, we apply the same configuration to all Hotel-X clients.
+
+To specify your quote settings you need to use the [`HotelSettingsInput` input](/api/inputs/hotel-settings-input) in your query variables:
+
+```js
+{
+	"settings": {
+		"client": "client_demo",
+		"context": "HOTELTEST",
+		"testMode": true,
+		"auditTransactions": false,
+		"timeout": 10000
+	}
+}
+```
+
+
+**Mandatory Settings:**
+* `client`
+* `context` (You have the flexibility to choose between using the supplier's context or your own, depending on which codes you want to see in the response. If you prefer to receive responses with your custom codes, please ensure that your context code is linked to the mapping files that you've previously uploaded to your FTP account.)
+* `timeout` (Timeout in milliseconds for the supplier connection. Won't close client connection if exceeded.)
+
+**Optional Settings:**
+* `group`
+* `auditTransactions` 
+* `suppliers` (Each one contains its own code, settings and accesses.)
+* `plugins`
+* `testMode` (This flag allows only the accesses checked as test.)
+* `clientTokens` (Used to identify the origin of the request, this is only used with some [plugins](../plugins/overview).)
+* `businessRules`
+* `operationTimeout` (Timeout in milliseconds for Hotel-X connection. Will close Buyer connection if exceeded. Must be higher than `timeout`.)
+
+
+:::tip Key Recommendations
+
+* Customize the `timeout` according to your needs, taking into consideration **the maximum values in Quote is 180,000ms**.
+
+* Set the `audiTransaction` to "true" in Quote when investigating errors.
+
+:::
+
+
+### Requests Examples
+
+<GraphqlSample query={quoteQuickStartQuery} variables={quoteQuickStartVariables}/>
+
+
+## Quote Response
+
+As mentioned earlier, the quote response will provide you with updated information about the option you selected during the search step. In this quote response, **there are some essential details that you should carefully review and consider** when providing information to your final customers:
+
+* **Cancellation Policies:** Within the `cancelPolicy` structure response, you will find a `refundable` field. If this field is marked as "false," it means that the room has a 100% cancellation cost, making it non-refundable.
+
+* **Remarks:** Pay attention to any remarks or additional notes provided in the response.
+
+* **Taxes:** Ensure you are aware of any applicable taxes associated with the selected option.
+
+:::tip Quote output fields
+Explore all the quote output fields and their descriptions in our detailed Graphql API Reference section [here](/api/objects/hotel-quote/). 
+:::
+
+
+## Frequently Asked Questions
+
+<details>
+    <summary>Do I have to perform a Quote Query in order to Book an option?</summary>
+    <div>
+        <div>Yes, in order to confirm a reservation, it is necessary to complete all three Booking Flow methods: Search, Quote, and Book.</div>
+    </div>
+</details>
+
+<details>
+    <summary>Are there any limitations on the number of Hotel-X Quote requests allowed per minute?</summary>
+    <div>
+        <div>Not from Travelgate side, we don't have any limitations on the RPM ("Requests for Minute") in any of our methods. However, some Sellers may have some limitations so we suggest you contact directly with them in order to discuss this information.</div>
+    </div>
+</details>
+
+<details>
+    <summary>Do options get blocked in Hotel-X Quote Query?</summary>
+    <div>
+        <div>Some Sellers may block the options when performing a Quote Query so we strongly recommend to contact them directly regarding this topic in order to prevent future issues.</div>
+    </div>
+</details>
+
+<details>
+    <summary>Is there any possibility to obtain RoomCodes in Quote?</summary>
+    <div>
+        <div>If the Seller provides this information, you can obtain the room code by including the rooms node in the HotelOptionQuote node.</div>
+    </div>
+</details>
+
+<details>
+    <summary>What should I do if I receive a status RQ in Quote response?</summary>
+    <div>
+        <div>You may receive a status On Request (status RQ) in Quote response in those cases the availability of the option previously selected is pending to be confirmed by the Seller. If you receive status RQ in Quote response, you should run a new Search request and restart the Booking Flow.</div>
+    </div>
+</details>

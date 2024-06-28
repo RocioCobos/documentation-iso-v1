@@ -1,0 +1,283 @@
+---
+sidebar_position: 11
+---
+
+# Virtual Credit Card
+
+The Virtual Credit Card plugin allows you to connect with a VCC supplier who can create virtual credit cards for you at the time of reservation. For each hotel booking where you indicate the plugin, our system will connect with your VCC supplier to obtain the virtual credit card and use this information to complete the reservation with the hotel supplier.
+
+Virtual Credit Card plugin adds the possibility to:
+
+* **Create a virtual credit card (VCCGen):** The VCC generator plugin empowers Buyers to generate virtual credit cards featuring activation and expiration dates of their choosing. You can apply rules using the `genvcc.csv` rules file to determine whether or not to utilize a specific VCC. This decision is based on the rules defined within the file and the parameters specified in the request.
+
+* **Cancel a virtual credit card (VCCCan):** The VCC cancel plugin is responsible for cancelling a virtual credit card identified by the id returned in the book response. The service will return the status of the payment card inside status field. This plugin should be utilized exclusively within the [Cancel](../booking-management/cancel) operation, contingent on the successful completion of the booking cancellation. To specify the virtual credit card to be used for cancellation, a rule that returns an access key will be employed, utilizing the same rule file as the VCC generator. You can establish rules within the `genvcc.csv` rule file to determine the utilization of a particular VCC based on rules within the file and request parameters.
+
+
+:::warning Bear in mind
+You need to have an agreement with a VCC supplier integrated with TravelgateX to start using this plugin. Please check our [VCC Payments article](/kb/our-products/are-you-a-buyer/getting-started-as-a-new-buyer/how-to-activate-vcc-payments) to learn all the steps before configuring the plugin in your book mutations.
+:::
+
+
+To get started with the VCC plugin, follow these simple steps:
+
+##  1.Create and Upload your GenVCC File
+
+To get started, create your credit card file in the correct format and then upload it to your SFTP account. We've provided a template file below ⬇️ to help you with this process. Just click on the file name, add your own rules, save it in CSV format, and then upload it to the corresponding folder in your SFTP.
+
+```mdx-code-block
+<BrowserWindow>
+
+📁HotelX  
+&nbsp;&nbsp;&nbsp;&nbsp; 📁HotelX_0000  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 📁BusinessRules  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **📄[BuyerContext_sequential_genvcc.csv](https://storage.travelgate.com/docs/BuyerContext_sequential_genvcc.csv)**
+
+</BrowserWindow>
+```
+
+### File format specification
+
+* **File Name:** BuyerContext_sequential_genvcc.csv
+* **Directory:** HotelX/HotelX\_0000/BusinessRules
+* **Delimiter:** Comma (`,`)
+* **Header Row:**
+    * **IdRule:** Rule’s identifier
+    * **ClientToken:** List of clientTokens allowed for this rule
+    * **NoClientToken:** List of clientTokens not allowed for this rule
+    * **Supplier:** List of hotel suppliers allowed for this rule
+    * **NoSupplier:** List of hotel suppliers not allowed for this rule
+    * **Hotels:** List of hotels for this rule which codes are in Context_Source context
+    * **NotHotels:** List of hotels not allowed for this rule which codes are in Context_Source context
+    * **Access:** List of accesses allowed for this rule
+    * **NoAccess** List of accesses not allowed for this rule
+    * **Currencies:** List of currencies allowed for this rule
+    * **NoCurrencies** List of currencies not allowed for this rule
+    * **CardType:** The CardType to be utilized for generating the virtual credit card
+    * **VccAccess** Payment access used to generate the virtual credit card with the VCC supplier
+
+
+:::note
+
+All lists are represented as a unique string separated by semicolons (';'). Each element within a list is a distinct value relevant to the specific criterion. For instance, a list of permissible currencies may include multiple currency codes, and each currency code is separated by a semicolon within the string representation.
+Example: 
+    Currency list => "EUR;USD;MXN" 
+
+:::
+
+<details>
+    <summary>List of available card types</summary>
+    <div>
+        <div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>
+                            <strong>Codes</strong>
+                        </th>
+                        <th>
+                            <strong>Names</strong>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>VI</td>
+                        <td>Visa</td>
+                    </tr>
+                    <tr>
+                        <td>AX</td>
+                        <td>American Express</td>
+                    </tr>
+                    <tr>
+                        <td>BC</td>
+                        <td>BC Card</td>
+                    </tr>
+                    <tr>
+                        <td>CA</td>
+                        <td>MasterCard</td>
+                    </tr>
+                    <tr>
+                        <td>CB</td>
+                        <td>Carte Blanche</td>
+                    </tr>
+                    <tr>
+                        <td>CU</td>
+                        <td>China Union Pay</td>
+                    </tr>
+                    <tr>
+                        <td>DS</td>
+                        <td>Discover</td>
+                    </tr>
+                    <tr>
+                        <td>DC</td>
+                        <td>Diners Club</td>
+                    </tr>
+                    <tr>
+                        <td>T</td>
+                        <td>Carta Si</td>
+                    </tr>
+                    <tr>
+                        <td>R</td>
+                        <td>Carte Bleue</td>
+                    </tr>
+                    <tr>
+                        <td>N</td>
+                        <td>Dankort</td>
+                    </tr>
+                    <tr>
+                        <td>L</td>
+                        <td>Delta</td>
+                    </tr>
+                    <tr>
+                        <td>E</td>
+                        <td>Electron</td>
+                    </tr>
+                    <tr>
+                        <td>JC</td>
+                        <td>Japan Credit Bureau</td>
+                    </tr>
+                    <tr>
+                        <td>TO</td>
+                        <td>Maestro</td>
+                    </tr>
+                    <tr>
+                        <td>S</td>
+                        <td>Switch</td>
+                    </tr>
+                    <tr>
+                        <td>EC</td>
+                        <td>Electronic Cash</td>
+                    </tr>
+                    <tr>
+                        <td>EU</td>
+                        <td>EuroCard</td>
+                    </tr>
+                    <tr>
+                        <td>TP</td>
+                        <td>Universal air travel card</td>
+                    </tr>
+                    <tr>
+                        <td>OP</td>
+                        <td>Optima</td>
+                    </tr>
+                    <tr>
+                        <td>ER</td>
+                        <td>Air Canada/RnRoute</td>
+                    </tr>
+                    <tr>
+                        <td>XS</td>
+                        <td>Access</td>
+                    </tr>
+                    <tr>
+                        <td>O</td>
+                        <td>Others</td>
+                    </tr>
+                </tbody>
+            </table>
+		</div>
+    </div>
+</details>
+
+
+:::caution
+
+Bear in mind that this file is a collection of rules and we chose in every Book **the first rule that matches the criteria sent in the Query**. You should specify the more restrictive rules on the top of the file. If there is no value for any rule criteria row, it means that any value in the request matches this row. It is important to indicate the contexts used in values on the rule criteria to improve rule matching.
+
+:::
+
+
+<details>
+    <summary>📹Learn how to change the format of the csv file in order to edit and save it</summary>
+    <div>
+        <div><iframe width="560" height="315" src="https://www.youtube.com/embed/XkOk3SkZ0Sg?si=TYhN1QfMwYE1fusw&amp;controls=0" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe></div>
+    </div>
+</details>
+
+## 2. Execute Virtual Credit Card Plugin in your Mutation
+
+### GenVCC
+
+Once you've uploaded your genvcc file, to use the plugin add the following field to the `settings` node of your request. Note that genvcc plugin can just be executed in `book` `mutation`. In order to successfully execute the genvcc plugin, you will need to create the request with the following variables.
+
+* **`step`**: "REQUEST"
+* **`type`**: "PRE_STEP"
+* **`name`**: "genvcc"
+* **`parameters`**:
+
+| Key              | Value         | Description                                                                    | Default Value (if not sent) | Mandatory |
+|------------------|---------------|--------------------------------------------------------------------------------|-----------------------------|-----------|
+| `activationDate` | yyyy/mm/dd    | Represents the date when the virtual credit card will be activated             | Same day as the book        | NO        |
+| `expirationDate` | yyyy/mm/dd    | Represents the date when the virtual credit card will expire                   | One month after check in    | NO        |
+| `useGross`       | true or false | Allows to choose the origin of the card amount. The option’s gross or the net. | Net option’s value          | NO        |
+
+```js
+"settings": {
+    "plugins" : [
+        {
+            "step" : "REQUEST",
+            "pluginsType" : {
+                "type" : "PRE_STEP",
+                "name" : "genvcc",
+                "parameters" : [
+                    {
+                        "key" : "activationDate",
+                        "value" : "yyyy-mm-dd"
+                    },
+                    {
+                        "key" : "expirationDate",
+                        "value" : "yyyy-mm-dd"
+                    },
+                    {
+                        "key" : "useGross",
+                        "value" : "true"
+                    }
+                ]
+            }
+        }
+    ]
+}
+```
+
+:::danger
+
+Please note, if your reservation fails due to connection or supplier error, a VCC (Virtual Credit Card) might still be created. If you need to cancel this VCC, contact with your VCC supplier promptly.
+
+:::
+
+### CanVCC
+
+In the case of canvcc, since it is a cancellation, there is no need to upload any file. You just have to indicate it in the request. Please note that the canvcc plugin can only be executed in the `cancel` `mutation`. To successfully execute the canvcc plugin, you will need to create the request with the following variables.
+
+* **`step`**: `RESPONSE`
+* **`type`**: `PRE_STEP`
+* **`name`**: `canvcc`
+* **`parameters`**:
+    * **`id`**: The id of the virtual credit card that you want to cancel.
+    * **`currency`**: (Optional) A currency can be added. This is particularly useful if you use different VCC accesses depending on the currency used. Currency code format must be ISO4217 code format (i.e. “EUR”, “USD”, “GBP”,…)
+
+```js
+"settings" : {
+    "plugins" : [
+        {
+            "step" : "RESPONSE",
+            "pluginsType" : {
+                "type" : "PRE_STEP",
+                "name" : "canvcc",
+                "parameters" : [
+                    {
+                        "key" : "id",
+                        "value" : "virtualCreditCardID"
+                    },
+                    {
+                        "key" : "currency",
+                        "value" : "USD"
+                    }
+                ]
+            }
+        }
+    ]
+}
+```
+
+
+

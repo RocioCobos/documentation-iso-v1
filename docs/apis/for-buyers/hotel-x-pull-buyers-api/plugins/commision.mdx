@@ -1,0 +1,90 @@
+---
+sidebar_position: 5
+---
+
+# Commission
+
+Commission plugin defines the contracted/expected commission in cases where the Supplier is not able to send it via integration. The commission loaded in the SFTP is considered as a Gross commission, meaning that the commission or profit is already included in the price.
+
+To get started with the Commission plugin, follow these simple steps:
+
+## 1. Create and Upload your Commission File
+
+To get started, create your commission file in the correct format and then upload it to your SFTP account. We've provided a template file below ⬇️ to help you with this process. Just click on the file name, add your own rules, save it in CSV format, and then upload it to the corresponding folder in your SFTP.
+
+```mdx-code-block
+<BrowserWindow>
+
+📁HotelX  
+&nbsp;&nbsp;&nbsp;&nbsp; 📁HotelX_0000  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 📁BusinessRules  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **📄[RequestContext_sequential_commission.csv](https://storage.travelgate.com/docs/BuyerContext_sequential_commission.csv)**
+
+</BrowserWindow>
+```
+
+:::note
+
+If you need assistance with requesting your credentials to access the SFTP server, determining the endpoint and directory format, or learning how to upload, update, and delete SFTP files, please refer to the [overview](../plugins/overview) section of Plugins.
+
+:::
+
+### File Format Specification
+
+* **File Name:** RequestContext_sequential_commission.csv 
+* **Directory:** HotelX/HotelX\_0000/BusinessRules
+* **Delimiter:** Comma (`,`)
+* **Header Row:**
+   * **RuleId (mandatory):** Unique identifier of the rule (assign one)
+   * **ClientTokens:** Client token used for index the rule
+   * **SupplierCodes (mandatory):** List of the supplier codes you want the commission to be applied to. 
+      * Separator for multiples codes in the same row: Semicolon (“;”)
+   * **NotSupplierCodes (mandatory):** List of the supplier codes you don't want the commission to be applied to. 
+      * Separator for multiples codes in the same row: Semicolon (“;”)
+   * **CreationDateFrom:** Start creation date (yyyy-mm-dd)
+   * **CreationDateTo:** End creation date (yyyy-mm-dd)
+   * **CheckInFrom:** Checkin date (yyyy-mm-dd)
+   * **CheckInTo:** Checkout date (yyyy-mm-dd)
+   * **HotelCodes:** List of the hotel codes you want the commission to be applied to. 
+      * Separator for multiples codes in the same row: Semicolon (“;”)
+   * **NothotelCodes:** List of the hotel codes you don't want the commission to be applied to. 
+      * Separator for multiples codes in the same row: Semicolon (“;”)
+   * **ChainsCodes:** List of the chain codes you want the commission to be applied to. 
+      * Separator for multiples codes in the same row: Semicolon (“;”)
+   * **NotChainCodes:** List of the chain codes you don't want the commission to be applied to. 
+      * Separator for multiples codes in the same row: Semicolon (“;”)
+   * **DestinationCodes:** List of the destination codes you want the commission to be applied to. 
+      * Separator for multiples codes in the same row: Semicolon (“;”)
+   * **NotDestinationCodes:** List of the destination codes you don't want the commission to be applied to. 
+      * Separator for multiples codes in the same row: Semicolon (“;”)
+   * **Percentage (mandatory):** Commission value (decimal separator must be point (“.”))
+   * **Force (mandatory):** Boolean value true/false
+      * **True:** The rule will be applied if matching all its conditions criteria, regardless of a commission being received or not from the supplier through the integration.
+      * **False:** The rule will not be applied despite of matching all its conditions criteria if a commission is received from the supplier through the integration.
+
+:::info File Name
+"RequestContext" on the file name depends on the context you use in your query:
+* If you use your own Buyer context (multi mode search) you only need to load 1 file with your context in the name (BuyerContext_sequential_commission.csv).
+* If you use the Supplier context (single mode search) you will need to load 1 file for each supplier with the Supplier context in the name (SupplierContext_sequential_commission.csv).
+:::
+
+<details>
+    <summary>📹Learn how to change the format of the csv file in order to edit and save it</summary>
+    <div>
+        <div><iframe width="560" height="315" src="https://www.youtube.com/embed/XkOk3SkZ0Sg?si=TYhN1QfMwYE1fusw&amp;controls=0" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe></div>
+    </div>
+</details>
+
+
+### Check Some of the Most Common Use Cases
+
+Here are some common use cases for the Commission plugin, along with the CSV template file to use:
+
+| Use Case                                                      | CSV Template file             |
+|---------------------------------------------------------------|-------------------------------|
+| File for error “"WRONG_FIELD" - "PLUGIN_ERROR" - some of the options have been discarded because we don't know if price is gross or net” | 📄[BuyerContext\_sequential\_commision.csv](https://storage.travelgate.com/docs/BuyerContext_sequential_commission-1.csv) |
+
+
+## 2.  Execute Commission Plugin in your Request
+
+In the case of the commission plugin, there is no need to indicate it in the requests. Simply uploading the file to the SFTP it will start working, no further action is required.

@@ -1,0 +1,19 @@
+---
+sidebar_position: 1
+title: Overview
+---
+
+:::danger Deprecated API
+
+The Legacy Pull Buyers API, our initial Buyers API launched in 2012, is now deprecated and should not be further developed. Instead, we introduced the [Hotel-X Buyers API](/docs/apis/for-buyers/hotel-x-pull-buyers-api/quickstart) in 2017, which serves as the sole API for new Buyers looking to integrate and participate in our Marketplace.
+
+:::
+
+# Overview
+
+The Booking Management operations provide a streamlined approach to handle bookings with a specific Seller. These operations include `Reservation List`, `Reservation Read`, and `Cancel`. The Booking Read and List facilitates retrieval of detailed booking information. Cancellation offers a straightforward way to cancel bookings when needed. Utilizing these operations streamlines the booking process and empowers you to manage bookings effectively with your designated Seller.
+
+import DocCardList from '@theme/DocCardList';
+import {useCurrentSidebarCategory} from '@docusaurus/theme-common';
+
+<DocCardList items={useCurrentSidebarCategory().items.filter((item, i) => i > 0)}/>

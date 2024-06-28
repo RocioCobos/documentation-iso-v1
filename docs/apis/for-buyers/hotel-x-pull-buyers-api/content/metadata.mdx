@@ -1,0 +1,52 @@
+---
+sidebar_position: 7
+---
+
+import {metadataQuery, metadataVariables} from "../../../../../src/graphql/hotel-x/metadata.query";
+
+
+# Metadata
+
+The Metadata Query returns a clear and summarized view of the Seller's main characteristics, as well as the methods implemented through their integration and the limitations and restrictions associated with their connection. The returned fields include:
+
+* `maxNumberHotels` (Maximum number of hotels that can be requested)
+* `recommendedNumberHotels` (Recommended number of hotels that can be requested)
+* `allowsCurrency`
+* `release` (Minimum days required in between booking date and checking date, if the value is zero then there is no limitation)
+* `minimumStay` (Minimum number of days required for booking, if the value is zero then there is no limitation)
+* `maxStay` (Maximum number of days allowed for booking)
+* `maxNumberRoomCandidates` (Maximum number of room candidates that can be requested in the same search request)
+* `paxTypeRangeInRoomCandidates` (Contains information about the age restrictions of the guests in a room)
+* `maxPaxInRoomCandidates` (Maximum number paxs in same room that can be requested in the same search request)
+* `maxPaxInAllRooms` (Maximum number of sum of paxs that can be requested in the same search request)
+* `requiredRoomWithSamePaxConfiguration` (Indicates whether all room must have the same configuration, same ages or same number of paxs)
+* `rateRules`
+* `ageRange` (The age range used by the supplier)
+* `languages` 
+
+:::note
+
+Travelgate API specifications will always prevail over the Seller's specifications. For instance, nationality should always be sent in SearchRQ even though it may be optional for some Sellers.
+
+Since Metadata information may not be updated by our Sellers frequently (they update it whenever there is a major update on their APIs), we suggest you confirm directly with them whether the information is up to date.
+
+:::
+
+## Metadata Inputs
+
+When creating your metadata query, you have 1 input to fill based on your specific needs:
+
+1. Criteria
+
+### 1. Criteria    
+
+This query has a single criteria, which is marked as mandatory (`supplierCodes`).
+
+**Mandatory criteria**
+* `supplierCodes`
+
+### Requests Examples
+
+#### Complete Metadata information from a specific supplier
+
+<GraphqlSample query={metadataQuery} variables={metadataVariables} />
